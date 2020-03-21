@@ -12,7 +12,6 @@ class HttpProvider {
     this.connected = false;
     this.getAccessToken = options.getAccessToken;
     this.syncInterval = options.syncInterval || 60000 // 1 min
-    this._mutex = new Mutex();
 
     var keepAlive = (options.keepAlive === true || options.keepAlive !== false) ? true : false;
     this.host = host || 'http://localhost:8545';
