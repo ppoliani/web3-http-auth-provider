@@ -12,13 +12,15 @@ class HttpProvider {
     this.connected = false;
     this.getAccessToken = options.getAccessToken;
     this.syncInterval = options.syncInterval || 60000 // 1 min
+    this._mutex = new Mutex();
 
     var keepAlive = (options.keepAlive === true || options.keepAlive !== false) ? true : false;
     this.host = host || 'http://localhost:8545';
     if (!this.agent) {
       if (this.host.substring(0,5) === "https") {
         this.httpsAgent = new https.Agent({ keepAlive: keepAlive });
-      } else {
+      } 
+      else {
         this.httpAgent = new http.Agent({ keepAlive: keepAlive });
       }
     }
@@ -34,14 +36,23 @@ class HttpProvider {
     });
   }
 
+  replaceAuthzHeader(header) {
+    const index = this.headers.findIndex(h => h.name === 'Authorization');
+
+    if(index !== -1) {
+      this.headers.splice(index, 1, header);
+    }
+    else {
+      this.headers.push(header);
+    }
+  }
+
   async _refreshToken() {
     try {
-      const token = await this.getAccessToken();
+      this._token = await this.getAccessToken();
       
-      this.headers.push({
-        name: 'Authorization',
-        value: `Bearer ${token}`
-      });
+      const header = {name: 'Authorization', value: `Bearer ${this._token}`};
+      this.replaceAuthzHeader(header);
       
       this._tick();
     }
@@ -53,12 +64,11 @@ class HttpProvider {
   async _syncAuth() {
     if(this.getAccessToken !== null) {
       await this._refreshToken();
-      this._tick()
     }
   }
 
   _tick() {
-    setTimeout(() => this.syncAuth(), this.syncInterval)
+    setTimeout(() => this._syncAuth(), this.syncInterval)
   }
 
   _prepareRequest() {
@@ -119,8 +129,9 @@ class HttpProvider {
     };
 
     try {
-        request.send(JSON.stringify(payload));
-    } catch(error) {
+      request.send(JSON.stringify(payload));
+    } 
+    catch(error) {
         this.connected = false;
         callback(errors.InvalidConnection(this.host));
     }
