@@ -3,8 +3,6 @@ const XHR2 = require('xhr2-cookies').XMLHttpRequest;
 const http = require('http');
 const https = require('https');
 
-const INTERVAL = 240000; // 4 mins
-
 class HttpProvider {
   constructor(host, options={}) {
     this.withCredentials = options.withCredentials || false;
@@ -13,6 +11,7 @@ class HttpProvider {
     this.agent = options.agent;
     this.connected = false;
     this.getAccessToken = options.getAccessToken;
+    this.syncInterval = options.syncInterval || 60000 // 1 min
 
     var keepAlive = (options.keepAlive === true || options.keepAlive !== false) ? true : false;
     this.host = host || 'http://localhost:8545';
@@ -59,7 +58,7 @@ class HttpProvider {
   }
 
   _tick() {
-    setTimeout(() => this.syncAuth(), INTERVAL)
+    setTimeout(() => this.syncAuth(), this.syncInterval)
   }
 
   _prepareRequest() {
