@@ -81,7 +81,8 @@ class HttpProvider {
     // the current runtime is a browser
     if (typeof XMLHttpRequest !== 'undefined') {
       request = new XMLHttpRequest();
-    } else {
+    } 
+    else {
       request = new XHR2();
       const agents = {httpsAgent: this.httpsAgent, httpAgent: this.httpAgent, baseUrl: this.baseUrl};
 
@@ -112,7 +113,7 @@ class HttpProvider {
     const request = this._prepareRequest();
 
     request.onreadystatechange = () => {
-      if (request.readyState === 4 && request.timeout !== 1) {
+      if (request.readyState === 4 && request.timeout !== 1 && (request.status >=200 && request.status < 300)) {
         let result = request.responseText;
         let error = null;
 
@@ -127,8 +128,8 @@ class HttpProvider {
       }
     };
 
-    request.ontimeout = function() {
-        _this.connected = false;
+    request.ontimeout = () => {
+        this.connected = false;
         callback(errors.ConnectionTimeout(this.timeout));
     };
 
@@ -136,8 +137,8 @@ class HttpProvider {
       request.send(JSON.stringify(payload));
     } 
     catch(error) {
-        this.connected = false;
-        callback(errors.InvalidConnection(this.host));
+      this.connected = false;
+      callback(errors.InvalidConnection(this.host));
     }
   }
 
