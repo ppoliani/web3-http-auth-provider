@@ -113,7 +113,7 @@ class HttpProvider {
     const request = this._prepareRequest();
 
     request.onreadystatechange = () => {
-      if (request.readyState === 4 && request.timeout !== 1 && (request.status >=200 && request.status < 300)) {
+      if (request.readyState === 4 && request.timeout !== 1) {
         let result = request.responseText;
         let error = null;
 
