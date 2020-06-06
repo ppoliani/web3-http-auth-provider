@@ -66,13 +66,13 @@ class HttpProvider {
         await this._refreshToken();
       }
       catch {
-        // do nothing
+        this._tick(10000); // retry in 10 secs
       }
     }
   }
 
-  _tick() {
-    setTimeout(() => this._syncAuth(), this.syncInterval)
+  _tick(ts=this.syncInterval) {
+    setTimeout(() => this._syncAuth(), ts);
   }
 
   _prepareRequest() {
@@ -129,8 +129,8 @@ class HttpProvider {
     };
 
     request.ontimeout = () => {
-        this.connected = false;
-        callback(errors.ConnectionTimeout(this.timeout));
+      this.connected = false;
+      callback(errors.ConnectionTimeout(this.timeout));
     };
 
     try {
