@@ -75,6 +75,29 @@ class HttpProvider {
     setTimeout(() => this._syncAuth(), ts);
   }
 
+  _hasTokenExpired() {
+    const universalBtoa = b64Encoded => {
+      try {
+        return atob(b64Encoded);
+      } catch (err) {
+        return Buffer.from(b64Encoded, 'base64').toString();
+      }
+    };
+
+    const base64Url = this._token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      universalBtoa(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+
+    const {exp} = JSON.parse(jsonPayload);
+
+    return Math.floor(Date.now() / 1000) > exp;
+  }
+
   _prepareRequest() {
     let request;
 
@@ -109,7 +132,11 @@ class HttpProvider {
     return request;
   }
 
-  send(payload, callback) {
+  async send(payload, callback) {
+    if(this._hasTokenExpired()) {
+      await this._refreshToken();
+    }
+
     const request = this._prepareRequest();
 
     request.onreadystatechange = () => {
