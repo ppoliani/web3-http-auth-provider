@@ -1,11 +1,15 @@
 {
   "name": "web3-http-auth-provider",
-  "version": "1.2.2",
+  "version": "1.3.0",
   "main": "src/index.js",
   "repository": "git@github.com:ppoliani/web3-http-auth-provider.git",
   "author": "ppoliani <ppoliani@gmail.com>",
   "license": "MIT",
-  "keywords": ["ethereum", "blockchain", "web3.js"],
+  "keywords": [
+    "ethereum",
+    "blockchain",
+    "web3.js"
+  ],
   "dependencies": {
     "web3-core-helpers": "^1.2.6",
     "xhr2-cookies": "^1.1.0"
